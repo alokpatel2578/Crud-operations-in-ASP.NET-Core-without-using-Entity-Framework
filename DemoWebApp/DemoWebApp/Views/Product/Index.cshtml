@@ -1,0 +1,69 @@
+﻿
+@{
+    ViewData["Title"] = "Product Management"; ;
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<a href="/Product/Create" class="btn btn-info">Add Product</a>
+<table id="productTable" class="table table-bordered">
+    <thead>
+        <tr>
+            <th>Id</th>
+            <th>Name</th>
+            <th>Price</th>
+            <th>Created At</th>
+            <th>Action</th>
+        </tr>
+    </thead>
+    <tbody></tbody>
+</table>
+
+@section scripts {
+    <script>
+        $(document).ready(function () {
+            $('#productTable').DataTable({
+                "ajax": {
+                    "url": "/Product/GetAllProducts",
+                    "type": "GET",
+                    "datatype": "json"
+                },
+                "columns": [
+                    { "data": "id" },
+                    { "data": "name" },
+                    { "data": "price" },
+                    { "data": "createdAt" },
+                    {
+                        "data": null,
+                        "render": function (data, type, row) {
+                            return "<button class='btn btn-info' onclick='EditProduct(" + data.id + ")'>Edit</button> | <button class='btn btn-danger' onclick='DeleteProduct(" + data.id + ")'>Delete</button>";
+                        }
+                    }
+                ]
+            });
+        });
+
+        // Function to delete a product
+        function DeleteProduct(id) {
+            if (confirm('Are you sure you want to delete this product?')) {
+                $.ajax({
+                    type: "POST",
+                    url: '/Product/DeleteProduct',
+                    data: { id: id },
+                    success: function (data) {
+                        if (data.success) {
+                            $('#productTable').DataTable().ajax.reload();
+                        } else {
+                            alert('Failed to delete product.');
+                        }
+                    }
+                });
+            }
+        }
+
+        // Function to edit a product
+        function EditProduct(id) {
+            window.location.href="/Product/Edit/"+id;
+        }
+    </script>
+}
+
+
